@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing Board</title>
+    <style>
+        #Heading {
+            font-size: 46px;
+            font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
+            margin: 13px;
+            text-shadow: rgb(247, 7, 7) 2px 3px 5px;
+        }
+
+        .bottomContainer {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        #canvas {
+            box-shadow: 1px 2px 45px black;
+            border: 14px solid black;
+            border-radius: 54px;
+            background-color: rgb(240, 238, 233);
+            width: 1200px;
+            height: 560px;
+        }
+
+        #canvas.pen {
+            cursor: crosshair;
+        }
+
+        #canvas.line {
+            cursor: cell;
+        }
+
+        #canvas.circle {
+            cursor: copy;
+        }
+
+        #canvas.eraser {
+            cursor: not-allowed;
+        }
+
+        #canvas.bucket {
+            cursor: paint-bucket;
+        }
+
+
+
+        polyline {
+            fill: none;
+        }
+
+        .rightContainer {
+            margin: 13px;
+            padding: 34px;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Common slider styling */
+        .rightContainer input[type="range"] {
+            writing-mode: bt-lr;
+            /* vertical */
+
+            height: 180px;
+            width: 8px;
+            margin: 20px 0;
+        }
+
+        /* Chrome / Edge thumb */
+        .rightContainer input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            background: black;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Chrome / Edge track */
+        .rightContainer input[type="range"]::-webkit-slider-runnable-track {
+            background: black;
+            width: 6px;
+        }
+
+        /* Firefox */
+        .rightContainer input[type="range"]::-moz-range-thumb {
+            background: black;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .rightContainer input[type="range"]::-moz-range-track {
+            background: black;
+            width: 6px;
+        }
+
+        .bottomBox {
+            writing-mode: vertical-lr;
+            direction: rtl;
+        }
+
+        .middleBox {
+            writing-mode: vertical-lr;
+            direction: rtl;
+        }
+        .controlIcon{
+            font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size:larger;
+        }
+        
+        .opacityIcon{
+            font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size:larger;
+        }
+        
+
+        .icon-btn {
+            background-color: #f3b8b9;
+            border: 2px solid #141010;
+            padding: 5px;
+            border-radius: 46px;
+            cursor: pointer;
+        }
+
+        .icon-btn:hover {
+            background: #100101;
+            border-radius: 22px;
+        }
+
+        .color {
+            display: inline-block;
+            width: 20px;
+            height: 2px;
+            border-radius: 50%;
+            margin-right: 8px;
+            cursor: pointer;
+            border: 1px solid black;
+        }
+
+        .control.vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* BIG invisible hit area */
+        .slider-hitbox {
+            width: 5px;
+            /* wide enough to catch mouse */
+            height: 160px;
+            display: flex;
+            justify-content: center;
+            align-items:center;
+        }
+
+        /* actual slider stays slim */
+        .slider-hitbox input[type="range"] {
+            width: 8px;
+            height: 160px;
+            writing-mode: vertical-lr;
+            direction: rtl;
+            justify-content: center;
+            align-items:center;
+        }
+
+
+
+        .icon-btn {
+            background: #f3b8b9;
+            border: 2px solid #141010;
+            padding: 6px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: black;
+        }
+
+        .icon-btn:hover {
+            background: #141010;
+            color: white;
+        }
+
+        .icon-btn.active {
+            background: black;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="head">
+        <label id="Heading"><strong>Scrible Slate:</strong> </label>
+    </div>
+    <div class="bottomContainer">
+        <div class="leftContainer">
+            <svg id="canvas"></svg>
+            <br>
+            <div class="feature">
+                <button id="clear" class="icon-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path d="M3 6h18M8 6v12M16 6v12M5 6l1 14h12l1-14M9 6V4h6v2" fill="none" stroke="black"
+                            stroke-width="2" />
+                    </svg>
+                </button>
+                <button class="icon-btn" data-tool="bucket" title="Paint Bucket" onclick="setTool('bucket')">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M4 10l8-6 8 6-8 10z" fill="none" stroke="currentColor" stroke-width="2" />
+                        <path d="M12 4v16" stroke="currentColor" stroke-width="2" />
+                        <path d="M18 20c0-2 3-2 3 0" fill="none" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </button>
+                <button class="icon-btn active" data-tool="pen" title="Pen" onclick="setTool('pen')">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M3 17c3-1 5-1 7 1s4 2 7 1" fill="none" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </button>
+
+                <button class="icon-btn" data-tool="line" title="Line" onclick="setTool('line')">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <line x1="4" y1="20" x2="20" y2="4" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </button>
+
+                <button class="icon-btn" data-tool="circle" title="Circle" onclick="setTool('circle')">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </button>
+                <button class="icon-btn" data-tool="eraser" title="Eraser" onclick="setTool('eraser')">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M3 15l7-7 6 6-7 7H3z" fill="none" stroke="currentColor" stroke-width="2" />
+                        <line x1="14" y1="14" x2="21" y2="14" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </button>
+                <button class="icon-btn" id="paletteBtn" title="Select Color">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M12 2a10 10 0 100 20c1.1 0 2-.9 2-2
+         0-.7-.4-1.4-1-1.7-.6-.3-1-.9-1-1.6
+         0-1.1.9-2 2-2h3a3 3 0 002.9-3.8A10 10 0 0012 2z" fill="none" stroke="currentColor" stroke-width="2" />
+                        <circle cx="7" cy="10" r="1" fill="currentColor" />
+                        <circle cx="10" cy="7" r="1" fill="currentColor" />
+                        <circle cx="14" cy="7" r="1" fill="currentColor" />
+                        <circle cx="17" cy="10" r="1" fill="currentColor" />
+                    </svg>
+                </button>
+
+                <input type="color" id="colorPicker" hidden>
+
+
+            </div>
+
+
+        </div>
+        <div class="rightContainer">
+
+            <div class="control vertical">
+
+                <div class="preview size-preview"></div>
+                <div class="slider-hitbox">
+                    <input type="range" id="size" min="1" max="20" value="3">
+                </div>
+                <br>
+                <span class="controlIcon">Brush Size</span>
+            </div>
+            <br>
+            <br>
+            <div class="control vertical">
+
+
+                <div class="preview opacity-preview"></div>
+                <div class="slider-hitbox">
+                    <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="1">
+                </div>
+                <br>
+                <span class="opacityIcon">Opacity </span>
+            </div>
+
+
+
+
+        </div>
+    </div>
+    </div>
+</body>
+<script src="./main.js"></script>
+
+</html>
